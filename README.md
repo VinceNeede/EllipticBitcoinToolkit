@@ -14,7 +14,7 @@ This project provides tools for:
 
 ```bash
 git clone https://github.com/VinceNeede/EllipticBitcoinToolkit.git
-cd elliptic_dataseet
+cd EllipticBitcoinToolkit
 pip install -e .
 ```
 
