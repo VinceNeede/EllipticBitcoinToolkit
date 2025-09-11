@@ -231,20 +231,22 @@ def _(nodes_df, test_size=0.2, return_X_y=True):
     X_test, y_test = test_df.drop(columns=['class']), test_df['class']
     return (X_train, y_train), (X_test, y_test)
 
-def load_labeled_data(test_size=0.2):
+def load_labeled_data(test_size=0.2, root="elliptic_bitcoin_dataset"):
     """
     Utility function to load data, select only labeled data and split temporally into train and test sets.
     Parameters
     ----------
     test_size : float, default=0.2
         Proportion of unique time steps to include in the test split (between 0.0 and 1.0).
+    root : str, optional
+        The root directory where the dataset is stored. Defaults to "elliptic_bitcoin_dataset".
     Returns
     -------
     (X_train, y_train), (X_test, y_test) : tuple of tuples
         X_train, y_train: training features and labels
         X_test, y_test: test features and labels
     """
-    nodes_df, edges_df = process_dataset()
+    nodes_df, edges_df = process_dataset(folder_path=root)
     nodes_df = nodes_df[nodes_df['class'] != -1] # select only labeled data
     (X_train, y_train), (X_test, y_test) = temporal_split(nodes_df, test_size=test_size)
     return (X_train, y_train), (X_test, y_test)
