@@ -6,9 +6,11 @@ providing utilities for data loading, temporal analysis, graph neural network
 modeling, and evaluation.
 """
 
-__version__ = "0.1.0a1"
-__author__ = "Vincenzo Bisogno"
-__email__ = "v.bisogno3@studenti.unipi.it"
+try:
+    from importlib.metadata import version
+    __version__ = version(__name__)
+except Exception:
+    __version__ = "0.0.0"
 
 # Import main classes and functions for easy access
 from .dataset import download_dataset, process_dataset, temporal_split, load_labeled_data

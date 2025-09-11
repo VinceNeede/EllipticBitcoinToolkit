@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elliptic_toolkit"
+version = "0.1.0a2"
+description = "A toolkit for the Elliptic Bitcoin dataset (university project)"
+authors = [
+    { name = "Vincenzo Bisogno", email = "v.bisogno3@studenti.unipit.it" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+dependencies = [
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "torch-geometric"
+]
+urls = { "Homepage" = "https://github.com/VinceNeede/EllipticBitcoinToolkit" }
