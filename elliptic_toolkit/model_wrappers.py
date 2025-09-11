@@ -206,12 +206,12 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         self.verbose = verbose
         self.n_iter_no_change = n_iter_no_change
         self.tol = tol
-        self.device_ = self._validate_device(device)  # Store validated device
+        self.device = self._validate_device(device)  # Store validated device
         self.heads = heads
         self.kwargs = kwargs
         
         # Move data to device
-        self.data = self.data.to(self.device_)
+        self.data = self.data.to(self.device)
                 
         # Handle heads parameter properly
         if heads is not None and model != GAT:
@@ -227,7 +227,7 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
             self.heads = heads
 
         if self.verbose:
-            print(f"Using device: {self.device_}")
+            print(f"Using device: {self.device}")
 
     def _get_pos_weight(self, indices):
         """
@@ -245,7 +245,7 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         """
         y = self.data.y[indices]
         pos_weight = (y == 0).sum() / (y == 1).sum()
-        return pos_weight.to(self.device_)
+        return pos_weight.to(self.device)
 
     def fit(self, X, y=None):
         """
@@ -284,15 +284,15 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
             norm_kwargs=norm_kwargs,
             jk=self.jk,
             **self.kwargs
-        ).to(self.device_)
+        ).to(self.device)
         
         optimizer = torch.optim.Adam(self.model_.parameters(), lr=self.learning_rate_init, weight_decay=self.weight_decay)
         
         # Convert indices to tensor and move to device
         if not isinstance(train_indices, torch.Tensor):
-            train_indices = torch.tensor(train_indices, dtype=torch.long, device=self.device_)
+            train_indices = torch.tensor(train_indices, dtype=torch.long, device=self.device)
         else:
-            train_indices = train_indices.to(self.device_)
+            train_indices = train_indices.to(self.device)
         
         
         if self.balance_loss:
@@ -398,9 +398,9 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         
         # Convert indices to tensor and move to device
         if not isinstance(test_indices, torch.Tensor):
-            test_indices = torch.tensor(test_indices, dtype=torch.long, device=self.device_)
+            test_indices = torch.tensor(test_indices, dtype=torch.long, device=self.device)
         else:
-            test_indices = test_indices.to(self.device_)
+            test_indices = test_indices.to(self.device)
         
         self.model_.eval()
         with torch.no_grad():
