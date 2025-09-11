@@ -418,6 +418,9 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
             proba_negative = 1 - proba_positive
             return np.column_stack([proba_negative, proba_positive])
         
+    @property
+    def classes_(self):
+        return np.array([0, 1])
         
 class DropTime(BaseEstimator, TransformerMixin):
     """
