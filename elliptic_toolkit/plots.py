@@ -20,22 +20,22 @@ def _get_marginals_ticks(x_labels, N=10):
 
 def plot_marginals(cv_results, max_ticks=10):
     """
-    For each hyperparameter in cv_results, plot the marginal mean and standard deviation (error bar) of test scores.
+    For each hyperparameter in ``cv_results``, plot the marginal mean and standard deviation (error bar) of test scores.
 
     The marginal mean/std for each hyperparameter value is computed by averaging across all other hyperparameters
-    the mean/std across the cv folds (i.e., by computing the average of the 'mean_test_score' and 'std_test_score' columns).
+    the mean/std across the cv folds (i.e., by computing the average of the ``mean_test_score`` and ``std_test_score`` columns).
 
     Parameters
     ----------
     cv_results : dict
-        The cv_results_ attribute from a scikit-learn search object.
+        The ``cv_results_`` attribute from a scikit-learn search object.
     max_ticks : int, default=10
         Maximum number of x-ticks to show on the x-axis for readability.
 
     Returns
     -------
     figs : dict
-        Dictionary mapping parameter names to matplotlib.figure.Figure objects.
+        Dictionary mapping parameter names to ``matplotlib.figure.Figure`` objects.
     """
     results = pd.DataFrame(cv_results)
     param_names = [col for col in results.columns if col.startswith('param_')]
@@ -81,9 +81,9 @@ def plot_evals(est, X_test, y_test, y_train,*, time_steps_test=None):
     temporal_fig : matplotlib.figure.Figure
         Figure for the rolling/cumulative AP and illicit rate by time step.
         
-    Notes:
+    Notes
     -----
-    This function assumes arrays to be numpy ndarrays. `X_test` is allowed to be a torch.Tensor but est.predict_proba must return numpy arrays.
+    This function assumes arrays to be numpy ndarrays. ``X_test`` is allowed to be a torch.Tensor but est.predict_proba must return numpy arrays.
     """
     y_pred_proba = est.predict_proba(X_test)[:, 1]
 
@@ -95,7 +95,7 @@ def plot_evals(est, X_test, y_test, y_train,*, time_steps_test=None):
         if hasattr(X_test, 'time'):
             time_steps_test = X_test['time'].values
         else:
-            raise ValueError('either pass time_steps_test esplicitly or X_test must have column `time`')
+            raise ValueError('either pass time_steps_test esplicitly or X_test must have column ``time``')
 
     # Create results DataFrame
     results_df = pd.DataFrame({

@@ -51,16 +51,20 @@ def process_dataset(
     -------
     nodes_df : pandas.DataFrame
         DataFrame with shape (203769, 167). Columns:
-            - 'time': Discrete time step (int)
-            - 'feat_0' ... 'feat_164': Node features (float)
-            - 'class': Node label (int: 1 for illicit, 0 for licit, -1 for unknown/missing)
+        
+        - 'time': Discrete time step (int)
+        - 'feat_0' ... 'feat_164': Node features (float)
+        - 'class': Node label (int: 1 for illicit, 0 for licit, -1 for unknown/missing)
+        
         The 'class' column uses -1 to indicate missing labels (transductive setting).
         The 'txId' column is dropped in the returned DataFrame; its original order matches the input file.
 
     edges_df : pandas.DataFrame
         DataFrame with shape (234355, 2). Columns:
-            - 'txId1': Source node index (int, row index in nodes_df)
-            - 'txId2': Target node index (int, row index in nodes_df)
+        
+        - 'txId1': Source node index (int, row index in nodes_df)
+        - 'txId2': Target node index (int, row index in nodes_df)
+        
         Each row represents a directed edge in the transaction graph, with node indices corresponding to rows in nodes_df.
 
     Notes

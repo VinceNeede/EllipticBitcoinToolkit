@@ -82,22 +82,28 @@ def parse_search_cv_logs(file_path, trim=True):
     Parse the hyperparameter search results.
     If trim is True, only return columns with more than one unique value.
 
-    Parameters:
+    Parameters
     ----------
-    - file_path: path to the log file
-    - trim: whether to trim the DataFrame to only columns with more than one unique value
+    file_path : str
+        Path to the log file.
+    trim : bool, default=True
+        Whether to trim the DataFrame to only columns with more than one unique value.
 
-    Returns: 
+    Returns
     -------
-    - res: pandas.DataFrame
-        DataFrane with hyperparameter results
+    res : pandas.DataFrame
+        DataFrame with hyperparameter results.
 
-    Notes:
+    Notes
     -----
-    - Assumes each relevant line in the log file contains 'END', cv number as [CV x/y] and hyperparameters in the format `param=value`.
-    Specific example line:
+    Assumes each relevant line in the log file contains 'END', cv number as [CV x/y] 
+    and hyperparameters in the format ``param=value``.
+    
+    Specific example line::
+    
         [CV 1/5] END accuracy=0.95, learning_rate=0.01, num_layers=3,; acc=0.95, total time=3min
-    The specific regex patterns can be adjusted in the `regex_map` dictionary.
+    
+    The specific regex patterns can be adjusted in the ``regex_map`` dictionary.
     """
     with open(file_path, 'r') as f:
         return _parse_search_cv_log_lines(f, trim=trim)
