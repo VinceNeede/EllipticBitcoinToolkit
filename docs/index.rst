@@ -89,6 +89,4 @@ Comprehensive plotting utilities for model evaluation:
 Indices and Tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
