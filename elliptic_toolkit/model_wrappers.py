@@ -164,17 +164,16 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         """
         if device == 'auto':
             return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        elif isinstance(device, str) and (device in ['cpu', 'cuda']):
-            if device == 'cuda' and not torch.cuda.is_available():
-                raise ValueError("CUDA is not available on this system.")
-            return torch.device(device)
-        elif isinstance(device, torch.device):
-            if device.type == 'cuda' and not torch.cuda.is_available():
-                raise ValueError("CUDA is not available on this system.")
-            return device
-        else:
-            raise ValueError(
-                f"Invalid device: {device}. Must be 'cpu', 'cuda', 'auto', or a torch.device object.")
+
+        try:
+            device_obj = torch.device(device)
+            if device_obj.type == 'cuda' and not torch.cuda.is_available():
+                warnings.warn(
+                    "CUDA is not available, falling back to CPU", UserWarning)
+                return torch.device('cpu')
+            return device_obj
+        except (RuntimeError, ValueError) as e:
+            raise ValueError(f"Invalid device '{device}': {e}")
 
     def __init__(
         self,
