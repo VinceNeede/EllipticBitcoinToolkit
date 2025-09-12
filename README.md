@@ -14,11 +14,13 @@ This project provides tools for:
 
 ## Installation
 
+The package hasn't been released on PyPI yet. It can be installed directly from GitHub:
+
 ```bash
-git clone https://github.com/VinceNeede/EllipticBitcoinToolkit.git
-cd EllipticBitcoinToolkit
-pip install -e .
+pip install git+https://github.com/VinceNeede/EllipticBitcoinToolkit
 ```
+
+For detailed installation instructions and requirements, see the [installation guide](https://vinceneede.github.io/EllipticBitcoinToolkit/installation.html).
 
 ## Quick Start
 
@@ -84,7 +86,6 @@ elliptic_toolkit/
 
 ## Requirements
 
-- Python 3.8+
 - scikit-learn
 - pandas
 - numpy
