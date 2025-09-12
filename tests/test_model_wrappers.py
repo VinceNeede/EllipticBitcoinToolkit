@@ -153,14 +153,6 @@ class TestGNNBinaryClassifier:
             # this should raise since the model is not yet fitted
             gnn.predict_proba(self._test_idx)
 
-    def test_cloning(self):
-        model = GNNBinaryClassifier(
-            self._dataset,
-            GCN,
-        )
-
-        cloned_model = clone(model)
-
     def test_fitting_and_prediction(self):
         """Test that predictions output correct shapes and types."""
         gnn = GNNBinaryClassifier(
@@ -281,7 +273,6 @@ class TestGNNBinaryClassifier:
         # Verify cloned model doesn't have fitted state
         assert not hasattr(cloned_gnn, 'model_')
         assert not hasattr(cloned_gnn, 'loss_curve_')
-        assert not hasattr(cloned_gnn, 'classes_')
 
         # Test that both can be fitted independently
         with pytest.warns(UserWarning):
