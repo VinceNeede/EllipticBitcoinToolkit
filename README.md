@@ -1,5 +1,7 @@
 # EllipticBitcoinToolkit
 
+[![Documentation](https://img.shields.io/badge/docs-available-blue.svg)](https://vinceneede.github.io/EllipticBitcoinToolkit/)
+
 A Python toolkit for Bitcoin transaction classification using the Elliptic dataset, developed as a university project for analyzing illicit activities in blockchain transactions.
 
 ## Overview
@@ -12,11 +14,13 @@ This project provides tools for:
 
 ## Installation
 
+The package hasn't been released on PyPI yet. It can be installed directly from GitHub:
+
 ```bash
-git clone https://github.com/VinceNeede/EllipticBitcoinToolkit.git
-cd EllipticBitcoinToolkit
-pip install -e .
+pip install git+https://github.com/VinceNeede/EllipticBitcoinToolkit
 ```
+
+For detailed installation instructions and requirements, see the [installation guide](https://vinceneede.github.io/EllipticBitcoinToolkit/installation.html).
 
 ## Quick Start
 
@@ -82,7 +86,6 @@ elliptic_toolkit/
 
 ## Requirements
 
-- Python 3.8+
 - scikit-learn
 - pandas
 - numpy
