@@ -23,21 +23,21 @@ __all__ = [
     # Dataset utilities
     "download_dataset",
     "process_dataset",
-    "temporal_split", 
+    "temporal_split",
     "load_labeled_data",
-    
+
     # Model wrappers
     "GNNBinaryClassifier",
     "MLPWrapper",
     "DropTime",
-    
+
     # Cross-validation
     "TemporalRollingCV",
-    
+
     # Plotting utilities
     "plot_evals",
     "plot_marginals",
-    
+
     # Log parsing
     "parse_search_cv_logs",
     "trim_hyperparameter_results",

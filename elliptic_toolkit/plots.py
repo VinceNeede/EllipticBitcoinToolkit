@@ -4,26 +4,30 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import PrecisionRecallDisplay, average_precision_score
 
+
 def _get_marginals_ticks(x_labels, N=10):
     """
     Helper for plot_marginals: reduces the number of x-ticks for readability.
     """
-    x = np.array(range(len(x_labels)))  # convert to numpy array for fancy indexing
+    x = np.array(range(len(x_labels))
+                 )  # convert to numpy array for fancy indexing
     x_labels = np.array(x_labels)  # convert to numpy array for fancy indexing
-    
+
     if len(x_labels) > N:
         step = max(1, len(x_labels) // N)
         shown_idx = list(range(0, len(x_labels), step))
-        
+
         return x[shown_idx], x_labels[shown_idx]
     return x, x_labels
+
 
 def plot_marginals(cv_results, max_ticks=10):
     """
     For each hyperparameter in ``cv_results``, plot the marginal mean and standard deviation (error bar) of test scores.
 
     The marginal mean/std for each hyperparameter value is computed by averaging across all other hyperparameters
-    the mean/std across the cv folds (i.e., by computing the average of the ``mean_test_score`` and ``std_test_score`` columns).
+    the mean/std across the cv folds
+    (i.e., by computing the average of the ``mean_test_score`` and ``std_test_score`` columns).
 
     Parameters
     ----------
@@ -43,9 +47,12 @@ def plot_marginals(cv_results, max_ticks=10):
     for param in param_names:
         fig, ax = plt.subplots()
         # Group by the parameter and compute mean test score
-        marginals = results.groupby(param, dropna=False)['mean_test_score'].mean()
-        marginals_std = results.groupby(param, dropna=False)['std_test_score'].mean()
-        x_labels = [f"{x:.2g}" if isinstance(x, float) else str(x) for x in marginals.index]
+        marginals = results.groupby(param, dropna=False)[
+            'mean_test_score'].mean()
+        marginals_std = results.groupby(param, dropna=False)[
+            'std_test_score'].mean()
+        x_labels = [f"{x:.2g}" if isinstance(
+            x, float) else str(x) for x in marginals.index]
         ax.errorbar(x_labels, marginals, yerr=marginals_std, fmt='-o')
         ax.set_title(f'Marginal mean test score for {param}')
         ax.set_ylabel('Mean test score')
@@ -55,7 +62,8 @@ def plot_marginals(cv_results, max_ticks=10):
         figs[param] = fig
     return figs
 
-def plot_evals(est, X_test, y_test, y_train,*, time_steps_test=None):
+
+def plot_evals(est, X_test, y_test, y_train, *, time_steps_test=None):
     """
     Generate two evaluation plots for a classifier:
     1. Precision-Recall curve on the test set.
@@ -80,22 +88,25 @@ def plot_evals(est, X_test, y_test, y_train,*, time_steps_test=None):
         Figure for the precision-recall curve.
     temporal_fig : matplotlib.figure.Figure
         Figure for the rolling/cumulative AP and illicit rate by time step.
-        
+
     Notes
     -----
-    This function assumes arrays to be numpy ndarrays. ``X_test`` is allowed to be a torch.Tensor but est.predict_proba must return numpy arrays.
+    This function assumes arrays to be numpy ndarrays. ``X_test`` is allowed to be a torch.Tensor
+    but est.predict_proba must return numpy arrays.
     """
     y_pred_proba = est.predict_proba(X_test)[:, 1]
 
     pr_fig, pr_ax = plt.subplots()
-    PrecisionRecallDisplay.from_predictions(y_test, y_pred_proba, plot_chance_level=True, ax=pr_ax)
+    PrecisionRecallDisplay.from_predictions(
+        y_test, y_pred_proba, plot_chance_level=True, ax=pr_ax)
 
     # Get time steps for test data
     if time_steps_test is None:
         if hasattr(X_test, 'time'):
             time_steps_test = X_test['time'].values
         else:
-            raise ValueError('either pass time_steps_test esplicitly or X_test must have column ``time``')
+            raise ValueError(
+                'either pass time_steps_test esplicitly or X_test must have column ``time``')
 
     # Create results DataFrame
     results_df = pd.DataFrame({
@@ -110,14 +121,16 @@ def plot_evals(est, X_test, y_test, y_train,*, time_steps_test=None):
     # Prepare data structures for rolling analysis
     rolling_metrics = []
 
-    # For each cutoff point, calculate metrics on all data up to and including that time step
+    # For each cutoff point, calculate metrics on all data up to and including
+    # that time step
     for i, cutoff_time in enumerate(unique_times):
         # Select data up to and including the current time step
         current_data = results_df[results_df['time'] <= cutoff_time]
-        
-        current_ap = average_precision_score(current_data['actual'], current_data['pred_proba'])
+
+        current_ap = average_precision_score(
+            current_data['actual'], current_data['pred_proba'])
         current_illicit_rate = np.mean(current_data['actual'] == 1)
-        
+
         rolling_metrics.append({
             'cutoff_time': cutoff_time,
             'ap': current_ap,
@@ -136,8 +149,8 @@ def plot_evals(est, X_test, y_test, y_train,*, time_steps_test=None):
     temporal_fig, ax1 = plt.subplots(figsize=(12, 6))
 
     # Plot AP on primary y-axis
-    ax1.plot(rolling_df['cutoff_time'], rolling_df['ap'], 'b-o', linewidth=2, 
-                        label='Rolling AP')
+    ax1.plot(rolling_df['cutoff_time'], rolling_df['ap'], 'b-o', linewidth=2,
+             label='Rolling AP')
     ax1.set_xlabel('Time Step Cutoff', fontsize=12)
     ax1.set_ylabel('AP', color='blue', fontsize=12)
     ax1.tick_params(axis='y', labelcolor='blue')
@@ -145,8 +158,12 @@ def plot_evals(est, X_test, y_test, y_train,*, time_steps_test=None):
 
     # Create a secondary y-axis for illicit rates
     ax2 = ax1.twinx()
-    ax2.plot(rolling_df['cutoff_time'], rolling_df['illicit_rate'], 'r-^', linewidth=2,
-                    label='Rolling Illicit Rate')
+    ax2.plot(
+        rolling_df['cutoff_time'],
+        rolling_df['illicit_rate'],
+        'r-^',
+        linewidth=2,
+        label='Rolling Illicit Rate')
     ax2.axhline(y=train_illicit_rate, color='r', linestyle='--', alpha=0.7,
                 label=f'Train Illicit Rate: {train_illicit_rate:.3f}')
     ax2.set_ylabel('Illicit Rate', color='red', fontsize=12)

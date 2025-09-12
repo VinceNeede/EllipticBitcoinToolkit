@@ -6,6 +6,7 @@ from torch_geometric.nn import GAT, PairNorm
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
 from sklearn.neural_network import MLPClassifier
 
+
 def _get_norm_arg(norm_str):
     """
     Utility function to parse normalization layer and arguments from a string.
@@ -28,15 +29,16 @@ def _get_norm_arg(norm_str):
 
     norm_kwargs : dict
         Additional keyword arguments for the normalization layer.
-    
+
     Notes:
     -----
-    Since `PairNorm` does not work with `BasicGNN` API, we return the already instantiated `PairNorm` object when `pair` is specified.
+    Since `PairNorm` does not work with `BasicGNN` API, we return the already instantiated `PairNorm`
+    object when `pair` is specified.
     """
-    
+
     if not isinstance(norm_str, str):
         return norm_str, {}
-    
+
     norm_args = norm_str.split('_')
     if len(norm_args) == 1:
         return norm_args[0], {}
@@ -57,17 +59,18 @@ def _get_norm_arg(norm_str):
         return PairNorm(**(kwargs or {})), {}
     return norm, kwargs
 
+
 class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
     """
     Graph Neural Network Binary Classifier with early stopping.
-    
+
     A scikit-learn compatible binary classifier that wraps around PyTorch Geometric GNN models.
     Currently supports transductive and full batch learning models (GCN, GAT).
-    
+
     The training loss is monitored and the model is considered converged if the loss does not improve
     for `n_iter_no_change` consecutive iterations by at least `tol`. This early stopping
     mechanism is always enabled, similar to `MLPClassifier` in scikit-learn.
-        
+
     Parameters
     ----------
     data : torch_geometric.data.Data
@@ -105,29 +108,29 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         Ignored with a warning for other model types.
     **kwargs : dict
         Additional keyword arguments passed to the model constructor.
-       
+
     Attributes:
     ----------
     loss_curve_ : list
         List of loss values at each training iteration.
     model_ : torch.nn.Module
-        The trained GNN model after calling `fit`. 
+        The trained GNN model after calling `fit`.
     """
-    
+
     def _validate_data(self, data):
         """
         Validate that the data object has required attributes.
-        
+
         Parameters
         ----------
         data : object
             Data object to validate.
-            
+
         Returns
         -------
         data : object
             Validated data object.
-            
+
         Raises
         ------
         ValueError
@@ -136,23 +139,24 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         attributes = ['x', 'edge_index', 'y']
         for attr in attributes:
             if not hasattr(data, attr) or getattr(data, attr) is None:
-                raise ValueError(f"Data object must have '{attr}' attribute and be non-null.")
+                raise ValueError(
+                    f"Data object must have '{attr}' attribute and be non-null.")
         return data
-    
+
     def _validate_device(self, device):
         """
         Validate and set the device for computation.
-        
+
         Parameters
         ----------
         device : str or torch.device
             Device specification.
-            
+
         Returns
         -------
         torch.device
             Validated device object.
-            
+
         Raises
         ------
         ValueError
@@ -169,8 +173,9 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
                 raise ValueError("CUDA is not available on this system.")
             return device
         else:
-            raise ValueError(f"Invalid device: {device}. Must be 'cpu', 'cuda', 'auto', or a torch.device object.")
-    
+            raise ValueError(
+                f"Invalid device: {device}. Must be 'cpu', 'cuda', 'auto', or a torch.device object.")
+
     def __init__(
         self,
         data,
@@ -190,7 +195,7 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         device='auto',
         heads=None,
         **kwargs,
-        ):
+    ):
         super().__init__()
         self.data = self._validate_data(data)
         self.model = model
@@ -209,13 +214,15 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
         self.device = self._validate_device(device)  # Store validated device
         self.heads = heads
         self.kwargs = kwargs
-        
+
         # Move data to device
         self.data = self.data.to(self.device)
-                
+
         # Handle heads parameter properly
         if heads is not None and model != GAT:
-            warnings.warn("'heads' parameter is only applicable for GAT model. Ignoring 'heads'.", UserWarning)
+            warnings.warn(
+                "'heads' parameter is only applicable for GAT model. Ignoring 'heads'.",
+                UserWarning)
             self.heads = heads  # Store for sklearn but don't use
         elif model == GAT:
             # For GAT, use heads if provided, otherwise default to 1
@@ -232,12 +239,12 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
     def _get_pos_weight(self, indices):
         """
         Calculate positive class weight for balanced loss computation.
-        
+
         Parameters
         ----------
         indices : torch.Tensor or array-like
             Indices of training samples.
-            
+
         Returns
         -------
         torch.Tensor
@@ -250,22 +257,22 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
     def fit(self, X, y=None):
         """
         Fit the GNN model to the training data.
-        
+
         Training automatically stops when the loss stops improving for
         n_iter_no_change consecutive iterations, similar to MLPClassifier.
-        
+
         Parameters
         ----------
         train_indices : array-like
             Indices of training samples in the graph.
         y : array-like, default=None
             Target values (ignored, present for sklearn compatibility).
-            
+
         Returns
         -------
         self : GNNBinaryClassifier
             Returns self for method chaining.
-            
+
         Warns
         -----
         UserWarning
@@ -285,56 +292,64 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
             jk=self.jk,
             **self.kwargs
         ).to(self.device)
-        
-        optimizer = torch.optim.Adam(self.model_.parameters(), lr=self.learning_rate_init, weight_decay=self.weight_decay)
-        
+
+        optimizer = torch.optim.Adam(
+            self.model_.parameters(),
+            lr=self.learning_rate_init,
+            weight_decay=self.weight_decay)
+
         # Convert indices to tensor and move to device
         if not isinstance(train_indices, torch.Tensor):
-            train_indices = torch.tensor(train_indices, dtype=torch.long, device=self.device)
+            train_indices = torch.tensor(
+                train_indices, dtype=torch.long, device=self.device)
         else:
             train_indices = train_indices.to(self.device)
-        
-        
+
         if self.balance_loss:
-            criterion = torch.nn.BCEWithLogitsLoss(pos_weight=self._get_pos_weight(train_indices))
+            criterion = torch.nn.BCEWithLogitsLoss(
+                pos_weight=self._get_pos_weight(train_indices))
         else:
             criterion = torch.nn.BCEWithLogitsLoss()
-        
+
         # Early stopping variables
         best_loss = float('inf')
         no_improvement_count = 0
-        
+
         self.loss_curve_ = []
 
         self.model_.train()
         converged = False
-        
+
         for epoch in range(1, self.max_iter + 1):
             optimizer.zero_grad()
             out = self.model_(self.data.x, self.data.edge_index).squeeze()
-            loss = criterion(out[train_indices], self.data.y[train_indices].float())
+            loss = criterion(
+                out[train_indices],
+                self.data.y[train_indices].float())
             loss.backward()
             optimizer.step()
-            
+
             current_loss = loss.item()
             self.loss_curve_.append(current_loss)
-            
+
             if self.verbose:
                 print(f"Epoch {epoch}: Loss = {current_loss:.6f}")
-            
+
             # Early stopping logic (always enabled)
             if current_loss < best_loss - self.tol:
                 best_loss = current_loss
                 no_improvement_count = 0
             else:
                 no_improvement_count += 1
-                
+
             if no_improvement_count >= self.n_iter_no_change:
                 if self.verbose:
-                    print(f"Early stopping at epoch {epoch}. No improvement for {self.n_iter_no_change} iterations.")
+                    print(
+                        f"Early stopping at epoch {epoch}. No improvement for {
+                            self.n_iter_no_change} iterations.")
                 converged = True
                 break
-        
+
         # Warn if training ended without convergence
         if not converged:
             warnings.warn(
@@ -343,109 +358,117 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
                 f"(currently {self.tol}) for better results.",
                 UserWarning
             )
-                
+
         return self
-    
+
     def predict(self, X):
         """
         Predict class labels for samples in test_indices.
-        
+
         Parameters
         ----------
         test_indices : array-like
             Indices of test samples in the graph.
-            
+
         Returns
         -------
         predictions : ndarray of shape (n_samples,)
             Predicted class labels (0 or 1).
-            
+
         Raises
         ------
         ValueError
             If the classifier has not been fitted yet.
         """
-        
+
         probs = self.predict_proba(X)
         predictions = (probs[:, 1] > 0.5).astype(int)
         return predictions
-    
+
     def predict_proba(self, X):
         """
         Predict class probabilities for samples in test_indices.
-        
+
         Parameters
         ----------
         test_indices : array-like
             Indices of test samples in the graph.
-            
+
         Returns
         -------
         probabilities : ndarray of shape (n_samples, 2)
             Predicted class probabilities. First column contains probabilities
             for class 0, second column for class 1.
-            
+
         Raises
         ------
         ValueError
             If the classifier has not been fitted yet.
         """
         test_indices = X
-        
 
         if not hasattr(self, 'model_'):
-            raise ValueError("This GNNBinaryClassifier instance is not fitted yet.")
-        
+            raise ValueError(
+                "This GNNBinaryClassifier instance is not fitted yet.")
+
         # Convert indices to tensor and move to device
         if not isinstance(test_indices, torch.Tensor):
-            test_indices = torch.tensor(test_indices, dtype=torch.long, device=self.device)
+            test_indices = torch.tensor(
+                test_indices, dtype=torch.long, device=self.device)
         else:
             test_indices = test_indices.to(self.device)
-        
+
         self.model_.eval()
         with torch.no_grad():
             out = self.model_(self.data.x, self.data.edge_index).squeeze()
             # Debug: Check for inf/nan in raw outputs
             raw_outputs = out[test_indices]
-            if torch.isnan(raw_outputs).any() or torch.isinf(raw_outputs).any():
-                warnings.warn("Model outputs contain NaN or Inf values. Using fallback predictions.")
+            if torch.isnan(raw_outputs).any(
+            ) or torch.isinf(raw_outputs).any():
+                warnings.warn(
+                    "Model outputs contain NaN or Inf values. Using fallback predictions.")
                 # Fallback to neutral probabilities
                 proba_positive = np.full(len(test_indices), 0.5)
             else:
                 # Clamp extreme values to prevent numerical issues
                 proba_positive = torch.sigmoid(raw_outputs).cpu().numpy()
-            
+
             proba_negative = 1 - proba_positive
             return np.column_stack([proba_negative, proba_positive])
-        
+
     @property
     def classes_(self):
         return np.array([0, 1])
-        
+
+
 class DropTime(BaseEstimator, TransformerMixin):
     """
     Transformer for dropping the 'time' column from a DataFrame.
     Useful in scikit-learn pipelines.
     """
+
     def __init__(self, drop=True):
-        self.drop=drop
+        self.drop = drop
+
     def fit(self, X, y=None):
         return self
+
     def transform(self, X):
         if self.drop:
             return X.drop(columns=["time"])
         return X
-    
+
+
 class MLPWrapper(MLPClassifier):
     """
     Wrapper around sklearn's MLPClassifier to allow specifying the number of layers
-    and hidden dimension directly. This is useful for hyperparameter tuning where 
+    and hidden dimension directly. This is useful for hyperparameter tuning where
     hyperparameters need to be independent.
     Some parameters of the base MLPClassifier are fixed to ensure consistent behavior:
     - shuffle=False: Disable shuffling to maintain temporal order.
     - early_stopping=False: Disable internal test/validation split
     for validation loss based early stopping and use training loss based early stopping instead.
-    
+
     Parameters
     ----------
     num_layers : int, default=2
@@ -464,6 +487,7 @@ class MLPWrapper(MLPClassifier):
     max_iter : int, default=1000
         Maximum number of iterations.
     """
+
     def __init__(
         self,
         num_layers=2,
@@ -473,8 +497,8 @@ class MLPWrapper(MLPClassifier):
         learning_rate_init=0.001,
         batch_size='auto',
         max_iter=1000,
-        ):
-        
+    ):
+
         self.num_layers = num_layers
         self.hidden_dim = hidden_dim
         self.hidden_layer_sizes = hidden_layer_sizes  # Store it as an attribute
@@ -482,11 +506,12 @@ class MLPWrapper(MLPClassifier):
         self.learning_rate_init = learning_rate_init
         self.batch_size = batch_size
         self.max_iter = max_iter
-        
-        # Use hidden_layer_sizes if provided, otherwise construct from num_layers/hidden_dim
+
+        # Use hidden_layer_sizes if provided, otherwise construct from
+        # num_layers/hidden_dim
         if hidden_layer_sizes is None:
-            hidden_layer_sizes = tuple([hidden_dim]*num_layers)
-        
+            hidden_layer_sizes = tuple([hidden_dim] * num_layers)
+
         super().__init__(
             hidden_layer_sizes=hidden_layer_sizes,
             alpha=alpha,
@@ -496,11 +521,12 @@ class MLPWrapper(MLPClassifier):
             shuffle=False,
             early_stopping=False,
         )
+
     def set_params(self, **params):
         if 'num_layers' in params or 'hidden_dim' in params:
             num_layers = params.pop('num_layers', self.num_layers)
             hidden_dim = params.pop('hidden_dim', self.hidden_dim)
-            params['hidden_layer_sizes'] = tuple([hidden_dim]*num_layers)
+            params['hidden_layer_sizes'] = tuple([hidden_dim] * num_layers)
             self.num_layers = num_layers
             self.hidden_dim = hidden_dim
         return super().set_params(**params)

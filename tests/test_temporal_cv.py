@@ -5,13 +5,15 @@ import torch
 
 from elliptic_toolkit.temporal_cv import TemporalRollingCV
 
+
 class TestTemporalCV:
-    
+
     _times = np.array([1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6])
     _n_splits = 2
     _class = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0])
 
     """Test cases for the TemporalCV class."""
+
     def test_dataframe(self):
         df = pd.DataFrame({
             'time': self._times,
@@ -21,7 +23,8 @@ class TestTemporalCV:
         tscv = TemporalRollingCV(n_splits=self._n_splits)
         splits = list(tscv.split(df))
         for train_idx, test_idx in splits:
-            assert all(df.loc[train_idx, 'time'] <= df.loc[test_idx, 'time'].min())
+            assert all(df.loc[train_idx, 'time']
+                       <= df.loc[test_idx, 'time'].min())
 
     def test_max_train_size(self):
         df = pd.DataFrame({
@@ -43,8 +46,9 @@ class TestTemporalCV:
         tscv = TemporalRollingCV(n_splits=self._n_splits, gap=1)
         splits = list(tscv.split(df))
         for train_idx, test_idx in splits:
-            assert df.loc[train_idx, 'time'].max() < df.loc[test_idx, 'time'].min() - 1
-            
+            assert df.loc[train_idx, 'time'].max(
+            ) < df.loc[test_idx, 'time'].min() - 1
+
     def test_test_size(self):
         df = pd.DataFrame({
             'time': self._times,
@@ -55,7 +59,7 @@ class TestTemporalCV:
         splits = list(tscv.split(df))
         for train_idx, test_idx in splits:
             assert len(set(df.loc[test_idx, 'time'])) == 2
-    
+
     def test_numpy_array(self):
         times = self._times
         tscv = TemporalRollingCV(n_splits=self._n_splits)
@@ -92,6 +96,7 @@ class TestTemporalCV:
             assert train_idx.dtype == torch.int64
             assert test_idx.dtype == torch.int64
             assert all(times[train_idx] <= times[test_idx].min())
-            
+
+
 if __name__ == "__main__":
     pytest.main([__file__])
