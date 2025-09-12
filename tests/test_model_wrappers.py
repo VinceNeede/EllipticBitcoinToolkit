@@ -114,7 +114,7 @@ class TestGNNBinaryClassifier:
             device='cpu',
             )
         
-        assert gnn.device_ == torch.device('cpu')
+        assert gnn.device == torch.device('cpu')
         
         with pytest.raises(ValueError):
             gnn = GNNBinaryClassifier(
@@ -129,7 +129,7 @@ class TestGNNBinaryClassifier:
                 GCN,
                 device='cuda',
                 )
-            assert gnn.device_ == torch.device('cuda')
+            assert gnn.device == torch.device('cuda')
         else:
             with pytest.warns(UserWarning):
                 gnn = GNNBinaryClassifier(
