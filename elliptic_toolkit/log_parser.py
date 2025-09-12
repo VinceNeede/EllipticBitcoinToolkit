@@ -7,14 +7,15 @@ regex_map = {
     'param_value': r'(\w+)=\s*([^,\s;]+)',
     'int': r'^-?\d+$',
     'float': r'^[-+]?(?:\d*\.\d+|\d+\.\d*|\d+[eE][-+]?\d+|\d*\.\d+[eE][-+]?\d+)$',
-    'time': r'^([-+]?\d+\.?\d*)\s*(s|min|m|h)$'
-}
+    'time': r'^([-+]?\d+\.?\d*)\s*(s|min|m|h)$'}
+
 
 def trim_hyperparameter_results(df):
     """
     Return a DataFrame with only columns that have more than one unique value.
     """
     return df.loc[:, df.nunique() > 1]
+
 
 def _parse_value(value):
     value = value.strip()
@@ -28,7 +29,7 @@ def _parse_value(value):
     int_match = re.fullmatch(regex_map['int'], value)
     if int_match:
         return int(value)
-    
+
     # If not an integer, try to match a float or scientific notation number.
     float_match = re.fullmatch(regex_map['float'], value)
     if float_match:
@@ -77,6 +78,7 @@ def _parse_search_cv_log_lines(lines, trim=True):
         return trim_hyperparameter_results(res)
     return res
 
+
 def parse_search_cv_logs(file_path, trim=True):
     """
     Parse the hyperparameter search results.
@@ -96,13 +98,13 @@ def parse_search_cv_logs(file_path, trim=True):
 
     Notes
     -----
-    Assumes each relevant line in the log file contains 'END', cv number as [CV x/y] 
+    Assumes each relevant line in the log file contains 'END', cv number as [CV x/y]
     and hyperparameters in the format ``param=value``.
-    
+
     Specific example line::
-    
+
         [CV 1/5] END accuracy=0.95, learning_rate=0.01, num_layers=3,; acc=0.95, total time=3min
-    
+
     The specific regex patterns can be adjusted in the ``regex_map`` dictionary.
     """
     with open(file_path, 'r') as f:

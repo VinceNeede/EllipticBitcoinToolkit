@@ -11,7 +11,7 @@ from torch_geometric.io import fs
 
 def download_dataset(
     root: str = "elliptic_bitcoin_dataset",
-    raw_file_names = [
+    raw_file_names=[
         'elliptic_txs_features.csv',
         'elliptic_txs_edgelist.csv',
         'elliptic_txs_classes.csv',
@@ -38,6 +38,7 @@ def download_dataset(
                 continue
         fs.cp(f'{url}/{os.path.basename(name)}.zip', root, extract=True)
 
+
 def process_dataset(
     folder_path: str = "elliptic_bitcoin_dataset",
     features_file: str = "elliptic_txs_features.csv",
@@ -51,20 +52,20 @@ def process_dataset(
     -------
     nodes_df : pandas.DataFrame
         DataFrame with shape (203769, 167). Columns:
-        
+
         - 'time': Discrete time step (int)
         - 'feat_0' ... 'feat_164': Node features (float)
         - 'class': Node label (int: 1 for illicit, 0 for licit, -1 for unknown/missing)
-        
+
         The 'class' column uses -1 to indicate missing labels (transductive setting).
         The 'txId' column is dropped in the returned DataFrame; its original order matches the input file.
 
     edges_df : pandas.DataFrame
         DataFrame with shape (234355, 2). Columns:
-        
+
         - 'txId1': Source node index (int, row index in nodes_df)
         - 'txId2': Target node index (int, row index in nodes_df)
-        
+
         Each row represents a directed edge in the transaction graph, with node indices corresponding to rows in nodes_df.
 
     Notes
@@ -80,12 +81,12 @@ def process_dataset(
     features_df = pd.read_csv(features_path, header=None)
     edges_df = pd.read_csv(edges_path)
     # Basic checks
-    
+
     # features checks
     assert features_df.shape == (203769, 167)
     assert features_df[0].nunique() == 203769  # txId is unique
     assert features_df[1].nunique() == 49  # time has 49 unique values
-    
+
     # classes checks
     assert all(classes_df.columns == ['txId', 'class'])
     assert classes_df.shape == (203769, 2)
@@ -101,22 +102,24 @@ def process_dataset(
     assert all(edges_df.columns == ['txId1', 'txId2'])
     assert set(edges_df['txId1']).issubset(set(features_df[0]))
     assert set(edges_df['txId2']).issubset(set(features_df[0]))
-    
+
     features_names = ['txId', 'time'] + [f'feat_{i}' for i in range(165)]
     features_df.columns = features_names
-    
+
     class_map = {'unknown': -1, '1': 1, '2': 0}
     classes_df['class'] = classes_df['class'].map(class_map)
-    
-    nodes_df = features_df.join(classes_df.set_index('txId')['class'], on='txId', how='left')
-    
+
+    nodes_df = features_df.join(classes_df.set_index('txId')[
+                                'class'], on='txId', how='left')
+
     txid_to_idx = pd.Series(nodes_df.index, index=nodes_df['txId'])
 
     # Map txId1 and txId2 in edges_df to node indices
     edges_df['txId1'] = edges_df['txId1'].map(txid_to_idx)
     edges_df['txId2'] = edges_df['txId2'].map(txid_to_idx)
-    
+
     return nodes_df.drop(columns=['txId']), edges_df
+
 
 @singledispatch
 def temporal_split(times, test_size=0.2):
@@ -157,6 +160,7 @@ def temporal_split(times, test_size=0.2):
 
     """
     raise NotImplementedError("temporal_split not implemented for this type")
+
 
 def _temporal_split(times, mod, test_size):
     """
@@ -201,6 +205,7 @@ def _temporal_split(times, mod, test_size):
     test_indices = mod.where(test_mask)[0]
     return train_indices, test_indices
 
+
 @temporal_split.register(np.ndarray)
 def _(times, test_size=0.2):
     """
@@ -208,6 +213,7 @@ def _(times, test_size=0.2):
     See _temporal_split for details.
     """
     return _temporal_split(times, np, test_size)
+
 
 @temporal_split.register(torch.Tensor)
 def _(times, test_size=0.2):
@@ -217,6 +223,7 @@ def _(times, test_size=0.2):
     """
     return _temporal_split(times, torch, test_size)
 
+
 @temporal_split.register(pd.DataFrame)
 def _(nodes_df, test_size=0.2, return_X_y=True):
     """
@@ -224,7 +231,8 @@ def _(nodes_df, test_size=0.2, return_X_y=True):
     Splits based on the 'time' column. If return_X_y=True, returns (X_train, y_train), (X_test, y_test) tuples;
     otherwise, returns the full train/test DataFrames.
     """
-    train_indices, test_indices = temporal_split(nodes_df['time'].values, test_size=test_size)
+    train_indices, test_indices = temporal_split(
+        nodes_df['time'].values, test_size=test_size)
 
     train_df = nodes_df.iloc[train_indices].reset_index(drop=True)
     test_df = nodes_df.iloc[test_indices].reset_index(drop=True)
@@ -234,6 +242,7 @@ def _(nodes_df, test_size=0.2, return_X_y=True):
     X_train, y_train = train_df.drop(columns=['class']), train_df['class']
     X_test, y_test = test_df.drop(columns=['class']), test_df['class']
     return (X_train, y_train), (X_test, y_test)
+
 
 def load_labeled_data(test_size=0.2, root="elliptic_bitcoin_dataset"):
     """
@@ -251,6 +260,7 @@ def load_labeled_data(test_size=0.2, root="elliptic_bitcoin_dataset"):
         X_test, y_test: test features and labels
     """
     nodes_df, edges_df = process_dataset(folder_path=root)
-    nodes_df = nodes_df[nodes_df['class'] != -1] # select only labeled data
-    (X_train, y_train), (X_test, y_test) = temporal_split(nodes_df, test_size=test_size)
+    nodes_df = nodes_df[nodes_df['class'] != -1]  # select only labeled data
+    (X_train, y_train), (X_test, y_test) = temporal_split(
+        nodes_df, test_size=test_size)
     return (X_train, y_train), (X_test, y_test)
