@@ -166,7 +166,10 @@ class GNNBinaryClassifier(ClassifierMixin, BaseEstimator):
             return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         try:
-            device_obj = torch.device(device)
+            if isinstance(device, torch.device):
+                device_obj = device
+            else:
+                device_obj = torch.device(device)
             if device_obj.type == 'cuda' and not torch.cuda.is_available():
                 warnings.warn(
                     "CUDA is not available, falling back to CPU", UserWarning)
