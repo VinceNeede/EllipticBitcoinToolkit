@@ -104,16 +104,14 @@ nbsphinx_execute_arguments = [
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
-# Allow errors in notebook execution (useful for demo notebooks)
-nbsphinx_allow_errors = True
+# Don't allow errors in notebook execution - fail fast if notebooks have issues
+nbsphinx_allow_errors = False
 
 # Kernel name to use for execution
 nbsphinx_kernel_name = 'python3'
 
-# Don't add notebook source links
+# Don't add notebook source links - they cause warnings with current structure
 nbsphinx_prolog = """
-{% set docname = env.doc2path(env.docname, base=None) %}
-
 .. note::
    This page was generated from a Jupyter notebook.
-   You can download the original notebook :download:`here <{{ docname }}>`."""
+"""
