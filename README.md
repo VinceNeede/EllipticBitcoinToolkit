@@ -1,5 +1,7 @@
 # EllipticBitcoinToolkit
 
+[![Documentation](https://img.shields.io/badge/docs-available-blue.svg)](https://vinceneede.github.io/EllipticBitcoinToolkit/)
+
 A Python toolkit for Bitcoin transaction classification using the Elliptic dataset, developed as a university project for analyzing illicit activities in blockchain transactions.
 
 ## Overview
