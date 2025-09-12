@@ -6,6 +6,7 @@ import pandas as pd
 import torch
 from torch_geometric.nn import GCN, PairNorm
 from torch_geometric.data import Data
+from sklearn.base import clone
 
 from elliptic_toolkit.model_wrappers import DropTime, MLPWrapper, _get_norm_arg, GNNBinaryClassifier
 
@@ -249,6 +250,42 @@ class TestGNNBinaryClassifier:
         preds1 = gnn1.predict_proba(test_idx)
 
         assert np.allclose(preds1, expected_res)
+
+    def test_cloning(self):
+        """Test that the model can be cloned using sklearn's clone function."""
+
+        gnn = GNNBinaryClassifier(
+            self._dataset,
+            GCN,
+            device='cpu',
+            max_iter=5,
+            hidden_dim=16,
+            num_layers=2
+        )
+
+        # Test cloning before fitting
+        cloned_gnn = clone(gnn)
+
+        # Verify cloned model is a different instance
+        assert cloned_gnn is not gnn
+
+        # Verify cloned model doesn't have fitted state
+        assert not hasattr(cloned_gnn, 'model_')
+        assert not hasattr(cloned_gnn, 'loss_curve_')
+
+        # Test that both can be fitted independently
+        with pytest.warns(UserWarning):
+            gnn.fit(self._train_idx)
+
+        with pytest.warns(UserWarning):
+            cloned_gnn.fit(self._train_idx)
+
+        # Both should have fitted state now
+        assert hasattr(gnn, 'model_')
+        assert hasattr(cloned_gnn, 'model_')
+
+        # They should be different model instances
+        assert gnn.model_ is not cloned_gnn.model_
 
 
 if __name__ == "__main__":
