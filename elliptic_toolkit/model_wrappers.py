@@ -32,7 +32,8 @@ def _get_norm_arg(norm_str):
 
     Notes:
     -----
-    Since `PairNorm` does not work with `BasicGNN` API, we return the already instantiated `PairNorm` object when `pair` is specified.
+    Since `PairNorm` does not work with `BasicGNN` API, we return the already instantiated `PairNorm`
+    object when `pair` is specified.
     """
 
     if not isinstance(norm_str, str):

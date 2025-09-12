@@ -23,7 +23,8 @@ def download_dataset(
 
     Args:
         root (str, optional): The root directory where the dataset will be stored. Defaults to "elliptic_bitcoin_dataset".
-        raw_file_names (list, optional): List of raw file names to download. Defaults to [ 'elliptic_txs_features.csv', 'elliptic_txs_edgelist.csv', 'elliptic_txs_classes.csv', ].
+        raw_file_names (list, optional): List of raw file names to download. Defaults to [ 'elliptic_txs_features.csv',
+        'elliptic_txs_edgelist.csv', 'elliptic_txs_classes.csv', ].
         force (bool, optional): Whether to force re-download the dataset if it already exists. Defaults to False.
         url (str, optional): The base URL for the dataset files. Defaults to 'https://data.pyg.org/datasets/elliptic'.
     """
@@ -156,7 +157,8 @@ def temporal_split(times, test_size=0.2):
     ---------------------
     - np.ndarray: Uses numpy operations to split by unique time values.
     - torch.Tensor: Uses torch operations to split by unique time values (no CPU/GPU transfer).
-    - pandas.DataFrame: Splits based on the 'time' column. If return_X_y=True, unpacks X and y based on the 'class' column; otherwise, returns the sliced DataFrames.
+    - pandas.DataFrame: Splits based on the 'time' column. If return_X_y=True, unpacks X and y
+    based on the 'class' column; otherwise, returns the sliced DataFrames.
 
     """
     raise NotImplementedError("temporal_split not implemented for this type")

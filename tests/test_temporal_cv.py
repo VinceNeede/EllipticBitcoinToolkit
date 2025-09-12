@@ -23,8 +23,8 @@ class TestTemporalCV:
         tscv = TemporalRollingCV(n_splits=self._n_splits)
         splits = list(tscv.split(df))
         for train_idx, test_idx in splits:
-            assert all(df.loc[train_idx, 'time'] <=
-                       df.loc[test_idx, 'time'].min())
+            assert all(df.loc[train_idx, 'time']
+                       <= df.loc[test_idx, 'time'].min())
 
     def test_max_train_size(self):
         df = pd.DataFrame({

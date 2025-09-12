@@ -37,7 +37,8 @@ class TestValueParsing:
 
 
 class TestLogParser:
-    _cv_line = "[CV 1/3] END class_weights=balanced, learning_rate=0.01, max_depth=5, n_estimators=100,; acc=0.95, ap=0.5 total time=  12.3s"
+    _cv_line = "[CV 1/3] END class_weights=balanced, learning_rate=0.01, max_depth=5,\
+        n_estimators=100,; acc=0.95, ap=0.5 total time=  12.3s"
 
     def test_line(self):
         res = _parse_search_cv_log_lines([self._cv_line], trim=False)

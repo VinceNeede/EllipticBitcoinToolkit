@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 import torch
-from torch_geometric.nn import GCN, GAT, PairNorm
+from torch_geometric.nn import GCN, PairNorm
 from torch_geometric.data import Data
 
 from elliptic_toolkit.model_wrappers import DropTime, MLPWrapper, _get_norm_arg, GNNBinaryClassifier
@@ -259,6 +259,6 @@ if __name__ == "__main__":
     try:
         # Call the specific test directly
         TestGNNBinaryClassifier().test_fitting_and_prediction()
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         sys.exit(1)
