@@ -7,6 +7,7 @@ This section provides practical examples of using the Elliptic Bitcoin Toolkit v
    :maxdepth: 2
    :caption: Example Notebooks
 
+   temporal_rolling_cv_example
    random_forest_example
    gcn_example
 
