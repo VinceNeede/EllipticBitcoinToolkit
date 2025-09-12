@@ -253,7 +253,6 @@ class TestGNNBinaryClassifier:
 
     def test_cloning(self):
         """Test that the model can be cloned using sklearn's clone function."""
-        from sklearn.base import clone
 
         gnn = GNNBinaryClassifier(
             self._dataset,
