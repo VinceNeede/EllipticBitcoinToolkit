@@ -24,7 +24,7 @@ def _parse_value(value):
     elif value == 'False':
         return False
     elif value == 'None':
-        return None
+        return 'None'
 
     int_match = re.fullmatch(regex_map['int'], value)
     if int_match:
