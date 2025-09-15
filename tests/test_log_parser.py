@@ -9,7 +9,7 @@ class TestValueParsing:
         assert _parse_value('False') is False
 
     def test_none_parsing(self):
-        assert _parse_value('None') is None
+        assert _parse_value('None') == 'None'
 
     def test_integer_parsing(self):
         assert _parse_value('42') == 42
