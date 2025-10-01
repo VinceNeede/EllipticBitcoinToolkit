@@ -551,7 +551,7 @@ class MLPWrapper(NeuralNetBinaryClassifier):
         self.verbose = verbose
         self.kwargs = kwargs
         super(NeuralNetBinaryClassifier, self).__init__(
-            module=MLPBinaryClassifier,
+            module=self.module,
             module__in_channels=in_channels,
             module__hidden_channels=hidden_channels,
             module__n_layers=n_layers,
@@ -562,7 +562,7 @@ class MLPWrapper(NeuralNetBinaryClassifier):
             optimizer=torch.optim.Adam,
             optimizer__lr=learning_rate_init,
             optimizer__weight_decay=weight_decay,
-            criterion=torch.nn.BCEWithLogitsLoss,
+            criterion=self.criterion,
             callbacks=[
                 EarlyStopping(
                     patience=patience,
@@ -604,4 +604,15 @@ class MLPWrapper(NeuralNetBinaryClassifier):
     def module(self, value):
         if value != MLPBinaryClassifier:
             raise ValueError("Module can only be MLPBinaryClassifier")
-        # Ignore setting since we always use MLPBinaryClassifier        
+        # Ignore setting since we always use MLPBinaryClassifier  
+        
+    @property
+    def criterion(self):
+        return torch.nn.BCEWithLogitsLoss
+    
+    @criterion.setter
+    def criterion(self, value):
+        if value != torch.nn.BCEWithLogitsLoss:
+            raise ValueError("Criterion can only be BCEWithLogitsLoss")
+        # Ignore setting since we always use BCEWithLogitsLoss
+
