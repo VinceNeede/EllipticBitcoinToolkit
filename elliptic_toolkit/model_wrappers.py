@@ -460,8 +460,41 @@ class DropTime(BaseEstimator, TransformerMixin):
             return X.drop(columns=["time"])
         return X
 
+class MLPBinaryClassifier(torch.nn.Module):
+    def __init__(
+        self,
+        in_channels,
+        hidden_channels=32,
+        n_layers=2,
+        dropout=0.2,
+        norm=None,
+    ):
+        super().__init__()
+        self.in_channels = in_channels
+        self.hidden_channels = hidden_channels
+        self.n_layers = n_layers
+        self.dropout = dropout
+        self.norm = norm
+        
+        self.module = torch.nn.Sequential()
+        for i in range(n_layers - 1):
+            if i == 0:
+                self.module.add_module("input", torch.nn.Linear(in_channels, hidden_channels))
+            else:
+                self.module.add_module(f"hidden_{i-1}", torch.nn.Linear(hidden_channels, hidden_channels))
+            if norm is not None:
+                self.module.add_module(f"norm_{i}", norm(hidden_channels))
+            self.module.add_module(f"relu_{i}", torch.nn.ReLU())
+            self.module.add_module(f"dropout_{i}", torch.nn.Dropout(dropout))
+        self.module.add_module("output", torch.nn.Linear(hidden_channels, 1))
+    
+    def forward(self, x):
+        return self.module(x).view(-1)
 
-class MLPWrapper(MLPClassifier):
+from skorch import NeuralNetBinaryClassifier
+from skorch.callbacks import EarlyStopping
+
+class MLPWrapper(ClassifierMixin, BaseEstimator, NeuralNetBinaryClassifier):
     """
     Wrapper around sklearn's MLPClassifier to allow specifying the number of layers
     and hidden dimension directly. This is useful for hyperparameter tuning where
@@ -492,43 +525,49 @@ class MLPWrapper(MLPClassifier):
 
     def __init__(
         self,
-        num_layers=2,
-        hidden_dim=16,
-        hidden_layer_sizes=None,  # Add this to make sklearn happy
-        alpha=0.0001,
-        learning_rate_init=0.001,
-        batch_size='auto',
-        max_iter=1000,
+        in_channels,
+        hidden_channels=32,
+        n_layers=3,
+        dropout=0.2,
+        norm=torch.nn.LayerNorm,
+        max_epochs=100,
+        batch_size=-1,
+        weight_decay=0.0001,
+        learning_rate_init=0.0001,
+        patience=10,
+        **kwargs,
     ):
-
-        self.num_layers = num_layers
-        self.hidden_dim = hidden_dim
-        self.hidden_layer_sizes = hidden_layer_sizes  # Store it as an attribute
-        self.alpha = alpha
-        self.learning_rate_init = learning_rate_init
+        self.in_channels = in_channels
+        self.hidden_channels = hidden_channels
+        self.n_layers = n_layers
+        self.dropout = dropout
+        self.norm = norm
+        self.max_epochs = max_epochs
         self.batch_size = batch_size
-        self.max_iter = max_iter
-
-        # Use hidden_layer_sizes if provided, otherwise construct from
-        # num_layers/hidden_dim
-        if hidden_layer_sizes is None:
-            hidden_layer_sizes = tuple([hidden_dim] * num_layers)
-
-        super().__init__(
-            hidden_layer_sizes=hidden_layer_sizes,
-            alpha=alpha,
-            learning_rate_init=learning_rate_init,
-            max_iter=max_iter,
+        self.weight_decay = weight_decay
+        self.learning_rate_init = learning_rate_init
+        self.kwargs = kwargs
+        super(NeuralNetBinaryClassifier, self).__init__(
+            module=MLPBinaryClassifier,
+            module__in_channels=in_channels,
+            module__hidden_channels=hidden_channels,
+            module__n_layers=n_layers,
+            module__dropout=dropout,
+            module__norm=norm,
+            max_epochs=max_epochs,
             batch_size=batch_size,
-            shuffle=False,
-            early_stopping=False,
+            optimizer=torch.optim.Adam,
+            optimizer__lr=learning_rate_init,
+            optimizer__weight_decay=weight_decay,
+            criterion=torch.nn.BCEWithLogitsLoss,
+            callbacks=[
+                EarlyStopping(
+                    patience=patience,
+                    monitor='train_loss',
+                )
+            ],
+            train_split=None,  # Disable internal validation split
+            shuffle=False,  # Disable shuffling to maintain temporal order
+            **kwargs,
         )
-
-    def set_params(self, **params):
-        if 'num_layers' in params or 'hidden_dim' in params:
-            num_layers = params.pop('num_layers', self.num_layers)
-            hidden_dim = params.pop('hidden_dim', self.hidden_dim)
-            params['hidden_layer_sizes'] = tuple([hidden_dim] * num_layers)
-            self.num_layers = num_layers
-            self.hidden_dim = hidden_dim
-        return super().set_params(**params)
+        
