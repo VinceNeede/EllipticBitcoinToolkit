@@ -535,7 +535,7 @@ class MLPWrapper(NeuralNetBinaryClassifier):
         weight_decay=0.0001,
         learning_rate_init=0.0001,
         patience=10,
-        **kwargs,
+        kwargs={},
     ):
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
@@ -567,7 +567,7 @@ class MLPWrapper(NeuralNetBinaryClassifier):
                 )
             ],
             train_split=None,  # Disable internal validation split
-            iteratore_train__shuffle=False,  # Disable shuffling to maintain order
+            iterator_train__shuffle=False,  # Disable shuffling to maintain order
             **kwargs,
         )
         

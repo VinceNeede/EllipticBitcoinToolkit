@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "elliptic_toolkit"
-version = "0.1.1-a4"
+version = "0.1.1-a5"
 description = "A toolkit for the Elliptic Bitcoin dataset (university project)"
 authors = [
     { name = "Vincenzo Bisogno", email = "v.bisogno3@studenti.unipit.it" }
