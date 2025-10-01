@@ -4,7 +4,6 @@ import warnings
 from torch_geometric.nn import GAT, PairNorm
 
 from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
-from sklearn.neural_network import MLPClassifier
 
 
 def _get_norm_arg(norm_str):
@@ -459,76 +458,3 @@ class DropTime(BaseEstimator, TransformerMixin):
         if self.drop:
             return X.drop(columns=["time"])
         return X
-
-
-class MLPWrapper(MLPClassifier):
-    """
-    Wrapper around sklearn's MLPClassifier to allow specifying the number of layers
-    and hidden dimension directly. This is useful for hyperparameter tuning where
-    hyperparameters need to be independent.
-    Some parameters of the base MLPClassifier are fixed to ensure consistent behavior:
-    - shuffle=False: Disable shuffling to maintain temporal order.
-    - early_stopping=False: Disable internal test/validation split
-    for validation loss based early stopping and use training loss based early stopping instead.
-
-    Parameters
-    ----------
-    num_layers : int, default=2
-        Number of hidden layers in the MLP.
-    hidden_dim : int, default=16
-        Number of units in each hidden layer.
-    hidden_layer_sizes : tuple or None, default=None
-        If provided, this overrides num_layers and hidden_dim.
-        Should be a tuple specifying the size of each hidden layer.
-    alpha : float, default=0.0001
-        L2 regularization term.
-    learning_rate_init : float, default=0.001
-        Initial learning rate.
-    batch_size : int or 'auto', default='auto'
-        Size of minibatches for stochastic optimizers.
-    max_iter : int, default=1000
-        Maximum number of iterations.
-    """
-
-    def __init__(
-        self,
-        num_layers=2,
-        hidden_dim=16,
-        hidden_layer_sizes=None,  # Add this to make sklearn happy
-        alpha=0.0001,
-        learning_rate_init=0.001,
-        batch_size='auto',
-        max_iter=1000,
-    ):
-
-        self.num_layers = num_layers
-        self.hidden_dim = hidden_dim
-        self.hidden_layer_sizes = hidden_layer_sizes  # Store it as an attribute
-        self.alpha = alpha
-        self.learning_rate_init = learning_rate_init
-        self.batch_size = batch_size
-        self.max_iter = max_iter
-
-        # Use hidden_layer_sizes if provided, otherwise construct from
-        # num_layers/hidden_dim
-        if hidden_layer_sizes is None:
-            hidden_layer_sizes = tuple([hidden_dim] * num_layers)
-
-        super().__init__(
-            hidden_layer_sizes=hidden_layer_sizes,
-            alpha=alpha,
-            learning_rate_init=learning_rate_init,
-            max_iter=max_iter,
-            batch_size=batch_size,
-            shuffle=False,
-            early_stopping=False,
-        )
-
-    def set_params(self, **params):
-        if 'num_layers' in params or 'hidden_dim' in params:
-            num_layers = params.pop('num_layers', self.num_layers)
-            hidden_dim = params.pop('hidden_dim', self.hidden_dim)
-            params['hidden_layer_sizes'] = tuple([hidden_dim] * num_layers)
-            self.num_layers = num_layers
-            self.hidden_dim = hidden_dim
-        return super().set_params(**params)

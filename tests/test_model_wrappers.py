@@ -8,7 +8,7 @@ from torch_geometric.nn import GCN, PairNorm
 from torch_geometric.data import Data
 from sklearn.base import clone
 
-from elliptic_toolkit.model_wrappers import DropTime, MLPWrapper, _get_norm_arg, GNNBinaryClassifier
+from elliptic_toolkit.model_wrappers import DropTime, _get_norm_arg, GNNBinaryClassifier
 
 
 class TestDropTime:
@@ -26,21 +26,6 @@ class TestDropTime:
         dt_no_drop = DropTime(drop=False)
         df_no_drop = dt_no_drop.transform(df)
         assert all(df == df_no_drop)
-
-
-class TestMLPWrapper:
-
-    def test_initialization(self):
-        mlp = MLPWrapper(num_layers=2, hidden_dim=16)
-        assert mlp.hidden_layer_sizes == (16, 16)
-        assert mlp.shuffle is False
-        assert mlp.early_stopping is False
-
-    def test_set_params(self):
-        mlp = MLPWrapper()
-        mlp.set_params(hidden_dim=32, num_layers=3, alpha=0.01)
-        assert mlp.hidden_layer_sizes == (32, 32, 32)
-        assert mlp.alpha == 0.01
 
 
 class TestGNNBinaryClassifier:
