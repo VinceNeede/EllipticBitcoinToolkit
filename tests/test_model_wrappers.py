@@ -27,6 +27,7 @@ class TestDropTime:
         df_no_drop = dt_no_drop.transform(df)
         assert all(df == df_no_drop)
 
+
 class TestGNNBinaryClassifier:
 
     _dataset = Data(
