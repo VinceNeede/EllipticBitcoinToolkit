@@ -494,7 +494,7 @@ class MLPBinaryClassifier(torch.nn.Module):
 from skorch import NeuralNetBinaryClassifier
 from skorch.callbacks import EarlyStopping
 
-class MLPWrapper(ClassifierMixin, BaseEstimator, NeuralNetBinaryClassifier):
+class MLPWrapper(NeuralNetBinaryClassifier):
     """
     Wrapper around sklearn's MLPClassifier to allow specifying the number of layers
     and hidden dimension directly. This is useful for hyperparameter tuning where
