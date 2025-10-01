@@ -535,6 +535,7 @@ class MLPWrapper(NeuralNetBinaryClassifier):
         weight_decay=0.0001,
         learning_rate_init=0.0001,
         patience=10,
+        verbose=0,
         kwargs={},
     ):
         self.in_channels = in_channels
@@ -546,6 +547,8 @@ class MLPWrapper(NeuralNetBinaryClassifier):
         self.batch_size = batch_size
         self.weight_decay = weight_decay
         self.learning_rate_init = learning_rate_init
+        self.patience = patience
+        self.verbose = verbose
         self.kwargs = kwargs
         super(NeuralNetBinaryClassifier, self).__init__(
             module=MLPBinaryClassifier,
@@ -568,6 +571,28 @@ class MLPWrapper(NeuralNetBinaryClassifier):
             ],
             train_split=None,  # Disable internal validation split
             iterator_train__shuffle=False,  # Disable shuffling to maintain order
+            verbose=verbose,
             **kwargs,
         )
+        
+    def set_params(self, **params):
+        if 'n_layers' in params:
+            n_layers = params.pop('n_layers')
+            params['module__n_layers'] = n_layers
+        if 'hidden_channels' in params:
+            hidden_channels = params.pop('hidden_channels')
+            params['module__hidden_channels'] = hidden_channels
+        if 'dropout' in params:
+            dropout = params.pop('dropout')
+            params['module__dropout'] = dropout
+        if 'norm' in params:
+            norm = params.pop('norm')
+            params['module__norm'] = norm
+        if 'learning_rate_init' in params:
+            learning_rate_init = params.pop('learning_rate_init')
+            params['optimizer__lr'] = learning_rate_init
+        if 'weight_decay' in params:
+            weight_decay = params.pop('weight_decay')
+            params['optimizer__weight_decay'] = weight_decay
+        return super().set_params(**params)
         
