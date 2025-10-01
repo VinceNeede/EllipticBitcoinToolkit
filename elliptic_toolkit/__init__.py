@@ -14,7 +14,7 @@ except Exception:
 
 # Import main classes and functions for easy access
 from .dataset import download_dataset, process_dataset, temporal_split, load_labeled_data
-from .model_wrappers import GNNBinaryClassifier, MLPBinaryClassifier, DropTime
+from .model_wrappers import GNNBinaryClassifier, DropTime
 from .temporal_cv import TemporalRollingCV
 from .plots import plot_evals, plot_marginals
 from .log_parser import parse_search_cv_logs, trim_hyperparameter_results
@@ -28,7 +28,6 @@ __all__ = [
 
     # Model wrappers
     "GNNBinaryClassifier",
-    "MLPBinaryClassifier",
     "DropTime",
 
     # Cross-validation

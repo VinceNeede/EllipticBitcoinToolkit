@@ -458,34 +458,3 @@ class DropTime(BaseEstimator, TransformerMixin):
         if self.drop:
             return X.drop(columns=["time"])
         return X
-
-class MLPBinaryClassifier(torch.nn.Module):
-    def __init__(
-        self,
-        in_channels,
-        hidden_channels=32,
-        n_layers=2,
-        dropout=0.2,
-        norm=None,
-    ):
-        super().__init__()
-        self.in_channels = in_channels
-        self.hidden_channels = hidden_channels
-        self.n_layers = n_layers
-        self.dropout = dropout
-        self.norm = norm
-        
-        self.module = torch.nn.Sequential()
-        for i in range(n_layers - 1):
-            if i == 0:
-                self.module.add_module("input", torch.nn.Linear(in_channels, hidden_channels))
-            else:
-                self.module.add_module(f"hidden_{i-1}", torch.nn.Linear(hidden_channels, hidden_channels))
-            if norm is not None:
-                self.module.add_module(f"norm_{i}", norm(hidden_channels))
-            self.module.add_module(f"relu_{i}", torch.nn.ReLU())
-            self.module.add_module(f"dropout_{i}", torch.nn.Dropout(dropout))
-        self.module.add_module("output", torch.nn.Linear(hidden_channels, 1))
-    
-    def forward(self, x):
-        return self.module(x).view(-1)
