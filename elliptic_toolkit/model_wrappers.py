@@ -595,4 +595,13 @@ class MLPWrapper(NeuralNetBinaryClassifier):
             weight_decay = params.pop('weight_decay')
             params['optimizer__weight_decay'] = weight_decay
         return super().set_params(**params)
-        
+
+    @property
+    def module(self):
+        return MLPBinaryClassifier
+
+    @module.setter
+    def module(self, value):
+        if value != MLPBinaryClassifier:
+            raise ValueError("Module can only be MLPBinaryClassifier")
+        # Ignore setting since we always use MLPBinaryClassifier        
