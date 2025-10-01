@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "elliptic_toolkit"
-version = "0.1.0-a1"
+version = "0.1.1-a2"
 description = "A toolkit for the Elliptic Bitcoin dataset (university project)"
 authors = [
     { name = "Vincenzo Bisogno", email = "v.bisogno3@studenti.unipit.it" }
@@ -18,7 +18,8 @@ dependencies = [
     "numpy>=2.1.2",
     "matplotlib>=3.10.5",
     "torch>=2.8.0",
-    "torch-geometric>=2.6.1"
+    "torch-geometric>=2.6.1",
+    "skorch>=1.2.0"
 ]
 urls = { "Homepage" = "https://github.com/VinceNeede/EllipticBitcoinToolkit" }
 
