@@ -567,7 +567,7 @@ class MLPWrapper(NeuralNetBinaryClassifier):
                 )
             ],
             train_split=None,  # Disable internal validation split
-            shuffle=False,  # Disable shuffling to maintain temporal order
+            iteratore_train__shuffle=False,  # Disable shuffling to maintain order
             **kwargs,
         )
         
